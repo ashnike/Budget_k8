@@ -1,0 +1,23 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  generateName: fetch-build-push-run-
+spec:
+  pipelineRef:
+    name: fetch-build-push-pipeline
+  params:
+  - name: repo-url
+    value: https://github.com/ashnike/Budget-App.git
+  - name: revision
+    value: main
+  - name: docker-image
+    value: ashniike/budget-app:latest
+  workspaces:
+  - name: shared-data
+    volumeClaimTemplate:
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 4Gi

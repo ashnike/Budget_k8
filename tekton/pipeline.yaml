@@ -1,0 +1,41 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: fetch-build-push-pipeline
+spec:
+  params:
+  - name: repo-url
+    description: Git repository URL
+    type: string
+  - name: revision
+    description: Git branch or commit
+    type: string
+    default: main
+  - name: docker-image
+    description: Docker image name (including tag)
+    type: string
+  workspaces:
+  - name: shared-data
+    description: Shared workspace for tasks
+  tasks:
+  - name: fetch-source
+    taskRef:
+      name: git-clone
+    workspaces:
+    - name: output
+      workspace: shared-data
+    params:
+    - name: url
+      value: "$(params.repo-url)"
+    - name: revision
+      value: "$(params.revision)"
+  - name: build-and-push
+    runAfter: [ "fetch-source" ]
+    taskRef:
+      name: build-and-push
+    workspaces:
+    - name: source
+      workspace: shared-data
+    params:
+    - name: docker-image
+      value: "$(params.docker-image)"
